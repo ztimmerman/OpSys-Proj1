@@ -3,6 +3,13 @@ Operating Systems
 Project 1- Bash
 */
 
+void my_setup();
+void my_prompt();
+char *my_read();
+char **my_parse(char *line);
+void my_execute(char **cmd);
+void my_clean();
+
 int main(){
 
   char *line;
