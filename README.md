@@ -1,12 +1,13 @@
 # OpSys-Proj1
 
-#**Names**:
-#Dillon Prendergast
+**Names**:
 
-#**Tar Contents**
+Dillon Prendergast
 
-#**How to Compile the Makefile**
+**Tar Contents**
 
-#**Know Bugs/Unfinished Portions**
+**How to Compile the Makefile**
 
-#**Considerations**
+**Know Bugs/Unfinished Portions**
+
+**Considerations**
