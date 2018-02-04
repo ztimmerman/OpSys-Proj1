@@ -4,10 +4,10 @@
 
 Dillon Prendergast
 
-**Tar Contents**
+**Tar Contents:**
 
-**How to Compile the Makefile**
+**How to Compile the Makefile:**
 
-**Know Bugs/Unfinished Portions**
+**Know Bugs/Unfinished Portions:**
 
-**Considerations**
+**Considerations:**
