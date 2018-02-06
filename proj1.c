@@ -3,6 +3,10 @@ Operating Systems
 Project 1- Bash
 */
 
+#include <stdio.h>
+
+#define BUFFER 255
+
 void my_setup();
 void my_prompt();
 char *my_read();
@@ -30,3 +34,25 @@ int main(){
 
     return 0;
 }
+
+void my_setup(){}
+
+void my_prompt(){
+  printf("bash$");
+}
+
+char *my_read(){
+  return NULL;
+}
+
+char **my_parse(char *line){
+  return NULL;
+}
+
+void my_execute(char **cmd){
+  //Match against patterns
+  //Execute based on pattern
+  //Print results
+}
+
+void my_clean(){}
