@@ -38,7 +38,7 @@ int main(){
 void my_setup(){}
 
 void my_prompt(){
-  printf("bash$");
+  printf("bash$");	//Not sure if more needed
 }
 
 char *my_read(){
