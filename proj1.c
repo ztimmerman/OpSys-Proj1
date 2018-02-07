@@ -38,15 +38,29 @@ int main(){
 void my_setup(){}
 
 void my_prompt(){
-  printf("bash$");	//Not sure if more needed
+  printf("bash-shell$");	//Not sure if more needed
 }
 
 char *my_read(){
-  return NULL;
+
+  int bufsize=BUFFER;
+  int position=0;
+  char *input=calloc(bufsize,sizeof(char));
+
+  fgets(input,bufsize,stdin);		//No '\0' yet...
+
+  return input;				//must free later
 }
 
 char **my_parse(char *line){
-  return NULL;
+  char  **args;
+
+  line=parse_whitespace(line);
+  args=parse_arguments(parsed);
+  args=expand_variables(args);
+  args=resolve_paths(args);
+
+  return cmd;
 }
 
 void my_execute(char **cmd){
