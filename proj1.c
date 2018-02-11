@@ -5,6 +5,7 @@ Project 1- Bash
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define BUFFER 255
 
@@ -13,7 +14,7 @@ void my_prompt();
 char *my_read();
 char **my_parse(char *line);
 char *parse_whitespace(char *line);
-char **parse_arguments(char *line);
+char **parse_arguments(char *line,char **cmd);
 void my_execute(char **cmd);
 void my_clean();
 
@@ -29,7 +30,7 @@ int main(){
     line=my_read();		//read input
 				
 				//Transform input
-    cmd=my_parse(line);		//match patterns
+    cmd=my_parse(line,cmd);		//match patterns
     my_execute(cmd);		//execute command
     my_clean();			//print results
 				//cleanup
@@ -54,14 +55,13 @@ char *my_read(){
   return input;				//must free later
 }
 
-char **my_parse(char *line){
+char **my_parse(char *line,char **cmd){
 
-  char  **args;
 
   line=parse_whitespace(line);
-  args=parse_arguments(line);
-  args=expand_variables(args);
-  args=resolve_paths(args);
+  cmd=parse_arguments(line,cmd);
+  cmd=expand_variables(cmd);
+  cmd=resolve_paths(cmd);
 
   return cmd;
 }
@@ -77,7 +77,7 @@ char *parse_whitespace(char *line){
 
     if(index==0){		//remove leading whitespace
       if(line[index]==' '){
-        strncpy(line,line[1],bufsize);
+        strncpy(line,&line[1],bufsize);
         continue;
       }
     }
@@ -102,26 +102,28 @@ char *parse_whitespace(char *line){
 	line[index-1]='\0';
 	continue;
       }
+	return line;
     }
     else if(line[index]=='|'||line[index]=='<'||line[index]=='>'
 	||line[index]=='&'||line[index]=='$'||line[index]=='~'){
 
       if(line[index-1]!=' '){
-	memmove(&line[index+1],&line[index],strlen(line-index-1);
+	memmove(&line[index+1],&line[index],strlen(line)-index);
 	line[index]=' ';
+	continue;
       }
       if(line[index+1]!=' '){
-       memmove(&line[index+2],&line[index+1],strlen(line-index-2);
+       memmove(&line[index+2],&line[index+1],strlen(line)-index-2);
        line[index+1]=' ';
+       continue;
       }
-     continue;
     }
 				//Add special characters
     index++;
   }
 }
 
-char **parse_arguments(char *line){
+char **parse_arguments(char *line,char **cmd){
 
 }
 
