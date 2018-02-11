@@ -20,7 +20,6 @@ char *my_read();
 char **my_parse(char *line,char **cmd);
 char *parse_whitespace(char *line);
 char **parse_arguments(char *line,char **cmd);
-char **expand_variables(char **cmd);
 void my_execute(char **cmd);
 void my_clean(char *line,char **cmd);
 
@@ -64,6 +63,7 @@ void my_setup(){
   HOME=getenv("HOME");
   SHELL=getenv("SHELL");
   PATH=getenv("PATH");
+
   MACHINE=getenv("MACHINE");	
 //works on non-cs server machines
 //  if(MACHINE[0]=='\0'){
@@ -71,6 +71,7 @@ void my_setup(){
 //	MACHINE=calloc(BUFFER,sizeof(char));
 //	gethostname(MACHINE,BUFFER);
   }
+
 }
 
 /*******************PROMPT FUNCT***************************/
@@ -100,7 +101,7 @@ char **my_parse(char *line,char **cmd){
 
   line=parse_whitespace(line);
   cmd=parse_arguments(line,cmd);
-  cmd=expand_variables(cmd);
+//  cmd=expand_variables(cmd);
 //  cmd=resolve_paths(cmd);
 
   return cmd;
@@ -201,12 +202,6 @@ char **parse_arguments(char *line,char **cmd){
 }
 
 
-/*****************EXPAND VARIABLES FUNCT****************/
-char **expand_variables(char **cmd){
-
-
-
-}
 /*****************EXECUTE FUNCT**************************/
 //
 void my_execute(char **cmd){
@@ -229,6 +224,8 @@ void my_clean(char *line,char **cmd){
    }
    free(cmd);
 
+
 //  if(strcmp(getenv("MACHINE"),"")==0)	//for non cs-machines
 //	free(MACHINE);
+
 };
