@@ -70,7 +70,7 @@ void my_setup(){
 //  if(strcmp(MACHINE,"")==0)
 //	MACHINE=calloc(BUFFER,sizeof(char));
 //	gethostname(MACHINE,BUFFER);
-  }
+//  }
 
 }
 
