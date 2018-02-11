@@ -13,6 +13,7 @@ void my_prompt();
 char *my_read();
 char **my_parse(char *line);
 char *parse_whitespace(char *line);
+char **parse_arguments(char *line);
 void my_execute(char **cmd);
 void my_clean();
 
@@ -58,7 +59,7 @@ char **my_parse(char *line){
   char  **args;
 
   line=parse_whitespace(line);
-  args=parse_arguments(parsed);
+  args=parse_arguments(line);
   args=expand_variables(args);
   args=resolve_paths(args);
 
@@ -77,32 +78,51 @@ char *parse_whitespace(char *line){
     if(index==0){		//remove leading whitespace
       if(line[index]==' '){
         strncpy(line,line[1],bufsize);
-        break;
+        continue;
       }
     }
 
     if(line[index]==' ' && (line[index+1]==' '||line[index+1]=='\t')){
-      strncpy(line,line[index+1],bufsize);
-      break;
+      memmove(&line[index],&line[index+1],strlen(line)-index);
+     // strncpy(line,line[index+1],bufsize);
+      continue;
     }
     else if(line[index]=='\t'){	//remove multiple whitespace
       line[index]=' ';
-      break;
+      continue;
     }
 
-    if(line[index]=='\n'){
+    else if(line[index]=='\n'){
       line[index]='\0';		//Adds terminating character to str
-      break;
+      continue;
     }
-    if(line[index]=='\0'){
+    else if(line[index]=='\0'){
 
       if(line[index-1]==' '){	//Removes trailing whitespace
 	line[index-1]='\0';
-	break;
+	continue;
       }
     }
+    else if(line[index]=='|'||line[index]=='<'||line[index]=='>'
+	||line[index]=='&'||line[index]=='$'||line[index]=='~'){
+
+      if(line[index-1]!=' '){
+	memmove(&line[index+1],&line[index],strlen(line-index-1);
+	line[index]=' ';
+      }
+      if(line[index+1]!=' '){
+       memmove(&line[index+2],&line[index+1],strlen(line-index-2);
+       line[index+1]=' ';
+      }
+     continue;
+    }
 				//Add special characters
+    index++;
   }
+}
+
+char **parse_arguments(char *line){
+
 }
 
 void my_execute(char **cmd){
