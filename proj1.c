@@ -224,6 +224,6 @@ void my_clean(char *line,char **cmd){
    }
    free(cmd);
 
-  if(strcmp(getenv("MACHINE","")==0)	//for non cs-machines
+  if(strcmp(getenv("MACHINE"),"")==0)	//for non cs-machines
 	free(MACHINE);
 };
