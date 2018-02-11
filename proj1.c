@@ -8,11 +8,13 @@ Project 1- Bash
 #include <stdlib.h>
 
 #define BUFFER 255
+#define ARGUMENTS 50
+#define ARG_SIZE 25
 
 void my_setup();
 void my_prompt();
 char *my_read();
-char **my_parse(char *line);
+char **my_parse(char *line,char **cmd);
 char *parse_whitespace(char *line);
 char **parse_arguments(char *line,char **cmd);
 void my_execute(char **cmd);
@@ -30,7 +32,8 @@ int main(){
     line=my_read();		//read input
 				
 				//Transform input
-    cmd=my_parse(line,cmd);		//match patterns
+    cmd=my_parse(line,cmd);	
+				//match patterns
     my_execute(cmd);		//execute command
     my_clean();			//print results
 				//cleanup
@@ -60,8 +63,8 @@ char **my_parse(char *line,char **cmd){
 
   line=parse_whitespace(line);
   cmd=parse_arguments(line,cmd);
-  cmd=expand_variables(cmd);
-  cmd=resolve_paths(cmd);
+//  cmd=expand_variables(cmd);
+//  cmd=resolve_paths(cmd);
 
   return cmd;
 }
@@ -103,7 +106,7 @@ char *parse_whitespace(char *line){
 	continue;
       }
 	return line;
-    }
+    }				//spaces around special char
     else if(line[index]=='|'||line[index]=='<'||line[index]=='>'
 	||line[index]=='&'||line[index]=='$'||line[index]=='~'){
 
@@ -118,13 +121,44 @@ char *parse_whitespace(char *line){
        continue;
       }
     }
-				//Add special characters
+			
     index++;
   }
 }
 
+//create tokens by spaces, each is ended with '\0'
 char **parse_arguments(char *line,char **cmd){
 
+   int size=BUFFER;
+   int index=0,end=0;
+				//allocate possibility of 255
+				//chars with one char btwn space
+   cmd=calloc(size, sizeof(char *));
+   
+   for(int i=0;i<size;i++){
+	cmd[i]=calloc(size,sizeof(char));
+   }
+
+   while(1){
+				//separate by spaces
+     if(line[index]==' '){
+	index++;
+	continue;
+     }
+     for(int i=index;i<strlen(line)-index;end=++i){
+	if(line[i]==' '){
+	  break;
+	}
+     }
+
+     memcpy(cmd[index],&line[index],strlen(line)-(end-index));
+     cmd[index][end-index]='\0';
+
+     index=end;
+
+     if(line[index]=='\0')
+	return cmd;
+   }
 }
 
 void my_execute(char **cmd){
