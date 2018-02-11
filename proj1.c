@@ -8,6 +8,7 @@ Project 1- Shell
 #include <stdio.h>	//io
 #include <string.h>	//c-strings
 #include <stdlib.h>	//memcpy,memmove
+#include <unistd.h>	//gethostname
 
 /***********************CONSTANTS*********************/
 #define BUFFER 255
@@ -63,9 +64,13 @@ void my_setup(){
   HOME=getenv("HOME");
   SHELL=getenv("SHELL");
   PATH=getenv("PATH");
-  MACHINE=getenv("MACHINE");	//works on non-cs server machines
-  if(strcmp(MACHINE,"")==0)
-	MACHINE=calloc(BUFFER,sizeof(char));
+  MACHINE=getenv("MACHINE");	
+//works on non-cs server machines
+//  if(MACHINE[0]=='\0'){
+//  if(strcmp(MACHINE,"")==0)
+//	MACHINE=calloc(BUFFER,sizeof(char));
+//	gethostname(MACHINE,BUFFER);
+  }
 }
 
 /*******************PROMPT FUNCT***************************/
@@ -224,6 +229,6 @@ void my_clean(char *line,char **cmd){
    }
    free(cmd);
 
-  if(strcmp(getenv("MACHINE"),"")==0)	//for non cs-machines
-	free(MACHINE);
+//  if(strcmp(getenv("MACHINE"),"")==0)	//for non cs-machines
+//	free(MACHINE);
 };
