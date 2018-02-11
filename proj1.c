@@ -3,14 +3,16 @@ Operating Systems
 Project 1- Bash
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
+/***********************INLUDED APIS****************/
+#include <stdio.h>	//io
+#include <string.h>	//c-strings
+#include <stdlib.h>	//memcpy,memmove
+
+/***********************CONSTANTS*********************/
 #define BUFFER 255
-#define ARGUMENTS 50
-#define ARG_SIZE 25
 
+/****************FUNCTIONS****************************/
 void my_setup();
 void my_prompt();
 char *my_read();
@@ -18,8 +20,10 @@ char **my_parse(char *line,char **cmd);
 char *parse_whitespace(char *line);
 char **parse_arguments(char *line,char **cmd);
 void my_execute(char **cmd);
-void my_clean();
+void my_clean(char *line,char **cmd);
 
+
+/*********************MAIN FUNCT**********************/
 int main(){
 
   char *line;
@@ -35,20 +39,26 @@ int main(){
     cmd=my_parse(line,cmd);	
 				//match patterns
     my_execute(cmd);		//execute command
-    my_clean();			//print results
+    my_clean(line,cmd);			//print results
 				//cleanup
   }
 
     return 0;
 }
 
+/***********************SETUP FUNCT***********************/
 void my_setup(){}
 
+/*******************PROMPT FUNCT***************************/
+//Prints out the standard USER@MACHINE :: PWD prompt
 void my_prompt(){
   printf("bash-shell$");	//Needs to be changed to 
 				//format found in Proj1.pdf
 }
 
+
+/*********************READ FUNCT*****************************/
+//reads in user inputs command line
 char *my_read(){
 
   int bufsize=BUFFER;
@@ -58,6 +68,9 @@ char *my_read(){
   return input;				//must free later
 }
 
+
+/*********************PARSE FUNCT****************************/
+//Parses the user input, fixing format and breaking up arguments
 char **my_parse(char *line,char **cmd){
 
 
@@ -70,11 +83,11 @@ char **my_parse(char *line,char **cmd){
 }
 
 
+/*******************PARSE_WHITESPACE FUNCT*******************/
+//distributes and deltes whitespace in the user input
 char *parse_whitespace(char *line){
   int bufsize=BUFFER;
   int index=0;
-
-  //char *copy=calloc(bufsize,sizeof(char));
 
   while(1){
 
@@ -126,7 +139,9 @@ char *parse_whitespace(char *line){
   }
 }
 
-//create tokens by spaces, each is ended with '\0'
+
+/*********************PARSE_ARGUMENTS FUNCT*********************/
+//create argument tokens by spaces, each is ended with '\0'
 char **parse_arguments(char *line,char **cmd){
 
    int size=BUFFER;
@@ -161,10 +176,26 @@ char **parse_arguments(char *line,char **cmd){
    }
 }
 
+
+/*****************EXECUTE FUNCT**************************/
+//
 void my_execute(char **cmd){
   //Match against patterns
   //Execute based on pattern
   //Print results
 }
 
-void my_clean(){}
+
+/***********************CLEAN FUNCT***********************/
+//frees allocated variables
+void my_clean(char *line,char **cmd){
+
+   int size=BUFFER;
+
+   free(line);
+
+   for(int i=0;i<size;i++){
+     free(cmd[i]);
+   }
+   free(cmd);
+};
