@@ -1,6 +1,6 @@
 /*Dillon Prendergast
 Operating Systems
-Project 1- Bash
+Project 1- Shell
 */
 
 
@@ -23,6 +23,13 @@ void my_execute(char **cmd);
 void my_clean(char *line,char **cmd);
 
 
+/*****************GLOBAL/ENVIRONMENT VAR*************/
+char *USER,
+     *PWD,
+     *HOME,
+     *SHELL,
+     *MACHINE,
+     *PATH;
 /*********************MAIN FUNCT**********************/
 int main(){
 
@@ -47,13 +54,22 @@ int main(){
 }
 
 /***********************SETUP FUNCT***********************/
-void my_setup(){}
+//Set up environmental variables
+void my_setup(){
+
+  USER=getenv("USER");
+  PWD=getenv("PWD");
+  HOME=getenv("HOME");
+  SHELL=getenv("SHELL");
+  PATH=getenv("PATH");
+  MACHINE=getenv("MACHINE");
+}
 
 /*******************PROMPT FUNCT***************************/
 //Prints out the standard USER@MACHINE :: PWD prompt
 void my_prompt(){
-  printf("bash-shell$");	//Needs to be changed to 
 				//format found in Proj1.pdf
+  printf("%s@%s :: %s =>",USER,MACHINE,PWD);
 }
 
 
