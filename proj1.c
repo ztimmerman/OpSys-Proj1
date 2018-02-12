@@ -66,12 +66,10 @@ void my_setup(){
   PATH=getenv("PATH");
 
   MACHINE=getenv("MACHINE");	
-//works on non-cs server machines
-//  if(MACHINE[0]=='\0'){
-//  if(strcmp(MACHINE,"")==0)
-//	MACHINE=calloc(BUFFER,sizeof(char));
-//	gethostname(MACHINE,BUFFER);
-//  }
+  if(MACHINE==NULL){
+	MACHINE=calloc(BUFFER,sizeof(char));
+	gethostname(MACHINE,BUFFER);
+  }
 
 }
 
@@ -259,7 +257,7 @@ void my_clean(char *line,char **cmd){
    free(cmd);
 
 
-//  if(strcmp(getenv("MACHINE"),"")==0)	//for non cs-machines
-//	free(MACHINE);
+  if(getenv("MACHINE")==NULL)	//for non cs-machines
+	free(MACHINE);
 
 };
