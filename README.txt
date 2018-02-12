@@ -27,7 +27,7 @@ Zachary Timmerman
   -Path resolution
 
 **************************************************
-		TAR FILE CONTENTS
+		TAR ARCHIVE CONTENTS
 **************************************************
 
 project1_prendergast_timmerman.tar contents:
@@ -64,7 +64,7 @@ $> make clean
 -
 
 **************************************************
-		      TO DO
+		UNFINISHED PORTIONS
 **************************************************
 
 -
