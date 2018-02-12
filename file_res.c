@@ -16,14 +16,15 @@
 char * fileExists(const char * directory, const char * ourFile) {
  DIR *dir;
  struct dirent *ent;
- char * newDir;
+ char * newDir = 0;
  if ((dir = opendir (directory)) != NULL) {
    /* print all the files and directories within directory */
    while ((ent = readdir (dir)) != NULL) {
 //      printf ("%s\n", ent->d_name);
- if (strcmp(ent->d_name,ourFile) == 0)	{
-   newDir = calloc(strlen(directory) + strlen(ourFile) + 1,1);
+ if (strcmp(ent->d_name,ourFile) == 0 && newDir == 0)	{
+   newDir = calloc(strlen(directory) + strlen(ourFile) + 2,1);
    strcpy(newDir,directory);
+   strcat(newDir,"/");
    strcat(newDir,ourFile);
  }
    }
@@ -37,7 +38,7 @@ char * fileExists(const char * directory, const char * ourFile) {
 }
 
 char * pathRes(char * newPath, const char * m_PATH){
-    char true_Path[1024];
+    char * true_path = 0;
 
     int path_size = 0;
     int colons_num = 0;
@@ -71,7 +72,13 @@ char * pathRes(char * newPath, const char * m_PATH){
 
     for (int i = 0; i <= colons_num; i++)  {
       //printf("%s\n",path_arr[i]);
-
+      temp_str = fileExists(path_arr[i],newPath);
+      if (temp_str != 0 && true_path == 0)  {
+        //printf("%s\n",temp_str);
+        true_path = calloc(strlen(temp_str) + 1,1);
+        strcpy(true_path,temp_str);
+        free(temp_str);
+      }
     }
 
     //free the ram!
@@ -80,6 +87,11 @@ char * pathRes(char * newPath, const char * m_PATH){
       free(temp_str);
     }
     free(path_arr);
+    if (true_path != 0) {
+      return true_path;
+    } else  {
+      return 0;
+    }
 }
 
 int main()
@@ -88,8 +100,11 @@ int main()
   char * pwd = "/home/zacharytimmerman/opsys/OpSys-Proj1";
   char * z_home = "/home/zacharytimmerman";
   char * newPath = "ls";
+  char * true_path;
 
-  pathRes(newPath,paths);
+  true_path = pathRes(newPath,paths);
+  printf("%s\n",true_path);
+  free(true_path);
 
   return 0;
 }
