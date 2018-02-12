@@ -20,6 +20,7 @@ char *my_read();
 char **my_parse(char *line,char **cmd);
 char *parse_whitespace(char *line);
 char **parse_arguments(char *line,char **cmd);
+char **expand_variables(char **cmd);
 void my_execute(char **cmd);
 void my_clean(char *line,char **cmd);
 
@@ -46,7 +47,7 @@ int main(){
 				//Transform input
     cmd=my_parse(line,cmd);	
 				//match patterns
-    my_execute(cmd);		//execute command
+//    my_execute(cmd);		//execute command
     my_clean(line,cmd);			//print results
 				//cleanup
   }
@@ -101,7 +102,8 @@ char **my_parse(char *line,char **cmd){
 
   line=parse_whitespace(line);
   cmd=parse_arguments(line,cmd);
-//  cmd=expand_variables(cmd);
+
+  cmd=expand_variables(cmd);
 //  cmd=resolve_paths(cmd);
 
   return cmd;
@@ -148,7 +150,7 @@ char *parse_whitespace(char *line){
     else if(line[index]=='|'||line[index]=='<'||line[index]=='>'
 	||line[index]=='&'||line[index]=='$'||line[index]=='~'){
 
-      if(line[index-1]!=' '){
+      if(line[index-1]!=' '&& index!=0){
 	memmove(&line[index+1],&line[index],strlen(line)-index);
 	line[index]=' ';
 	continue;
@@ -170,8 +172,7 @@ char *parse_whitespace(char *line){
 char **parse_arguments(char *line,char **cmd){
 
    int size=BUFFER;
-   int index=0,end=0;
-				//allocate possibility of 255
+   int index=0,start=0,end=0;
 				//chars with one char btwn space
    cmd=calloc(size, sizeof(char *));
    
@@ -181,27 +182,51 @@ char **parse_arguments(char *line,char **cmd){
 
    while(1){
 				//separate by spaces
-     if(line[index]==' '){
-	index++;
+     if(line[start]==' '){
+	start++;
 	continue;
      }
-     for(int i=index;i<strlen(line)-index;end=++i){
+     for(int i=start;i<strlen(line);end=++i){
 	if(line[i]==' '){
 	  break;
 	}
      }
 
-     memcpy(cmd[index],&line[index],strlen(line)-(end-index));
-     cmd[index][end-index]='\0';
+     //memcpy(cmd[index],&line[index],strlen(line)-(end-index));
+     memcpy(cmd[index],&line[start],(end-start));
+     cmd[index][end-start]='\0';
 
-     index=end;
+     start=end;
+     index++;
 
-     if(line[index]=='\0')
+     if(line[index]=='\0'){
 	return cmd;
+     }
    }
 }
 
 
+/***********EXPAND VARIABLES FUNCT**********************/
+//turns envvar into the envvar values
+char **expand_variables(char **cmd){
+
+  int size=BUFFER;
+
+  for(int i=0;i<BUFFER;i++){	//runs through cmd array
+
+    if(cmd[i]==NULL)		//invalid variable
+	continue;
+
+    if(cmd[i][0]=='\0'){	//until first empty string
+      break;
+    }
+    
+    if(cmd[i][0]=='$'){		//variables signaled by leading $
+      cmd[i+1]=getenv(cmd[i+1]);//cuts off leading $ and gets env
+    }
+  }
+  return cmd;
+}
 /*****************EXECUTE FUNCT**************************/
 //
 void my_execute(char **cmd){
@@ -220,6 +245,15 @@ void my_clean(char *line,char **cmd){
    free(line);
 
    for(int i=0;i<size;i++){
+
+     if(cmd[i]!=NULL && cmd[i][0]=='$'){
+			
+	free(cmd[i]);		
+        if(cmd[i+1]!=NULL && cmd[i+1][0]!='\0'){
+	  i++;		//following index is expanded
+	}		//variable. These are found by
+	continue;	//getenv, which does not need free
+     }
      free(cmd[i]);
    }
    free(cmd);
