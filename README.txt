@@ -17,14 +17,15 @@ Member 2: Zachary Timmerman
 **************************************************
 
 Dillon Prendergast
+  -README
   -prompt
   -user-input
   -input-parsing
   -expansion of evironment variables
+  -exit command
 
 Zachary Timmerman
   -makefie
-  -Path resolution
 
 **************************************************
 		TAR ARCHIVE CONTENTS
@@ -67,7 +68,11 @@ $> make clean
 		UNFINISHED PORTIONS
 **************************************************
 
--
+-Path resolution
+-i/o redirection
+-pipes
+-background processing
+-built ins
 
 **************************************************
 		     COMMENTS
