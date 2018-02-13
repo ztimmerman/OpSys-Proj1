@@ -9,6 +9,8 @@ Project 1- Shell
 #include <string.h>	//c-strings
 #include <stdlib.h>	//memcpy,memmove
 #include <unistd.h>	//gethostname
+#include <sys/types.h>	//fork
+#include <sys/wait.h>	//wait
 
 /***********************CONSTANTS*********************/
 #define BUFFER 255
@@ -32,6 +34,7 @@ char *USER,
      *SHELL,
      *MACHINE,
      *PATH;
+int done;
 /*********************MAIN FUNCT**********************/
 int main(){
 
@@ -47,8 +50,11 @@ int main(){
 				//Transform input
     cmd=my_parse(line,cmd);	
 				//match patterns
-//    my_execute(cmd);		//execute command
+    my_execute(cmd);		//execute command
     my_clean(line,cmd);			//print results
+    
+    if(done==1)
+	break;
 				//cleanup
   }
 
@@ -147,7 +153,7 @@ char *parse_whitespace(char *line){
     else if(line[index]=='|'||line[index]=='<'||line[index]=='>'
 	||line[index]=='&'||line[index]=='$'||line[index]=='~'){
 
-      if(line[index-1]!=' '&& index!=0){
+      if(index!=0 && line[index-1]!=' '){
 	memmove(&line[index+1],&line[index],strlen(line)-index);
 	line[index]=' ';
 	continue;
@@ -230,6 +236,24 @@ char **expand_variables(char **cmd){
 /*****************EXECUTE FUNCT**************************/
 //
 void my_execute(char **cmd){
+
+  if(strcmp(cmd[0],"exit")==0){
+    int status;
+    pid_t pid=fork();
+
+    if(pid==0){
+	printf("Exiting Shell....\n");
+	exit(0);
+    }
+    else{
+	waitpid(pid,&status,0);
+	done=1;
+	return;
+    }
+  }
+  //else if(strcmp(cmd[0],"exit")==0){
+
+  //}
   //Match against patterns
   //Execute based on pattern
   //Print results

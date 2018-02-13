@@ -17,14 +17,16 @@ Member 2: Zachary Timmerman
 **************************************************
 
 Dillon Prendergast
+  -README
   -prompt
   -user-input
   -input-parsing
   -expansion of evironment variables
+  -exit command
 
 Zachary Timmerman
-  -makefie
   -Path resolution
+  -makefie
 
 **************************************************
 		TAR ARCHIVE CONTENTS
@@ -61,13 +63,21 @@ $> make clean
 		      BUGS
 **************************************************
 
--
+-Seg fault when two 'special characters' are
+ entered consecutively w/o spaces.
+ Appears to go out of index range when adding a
+ space after second character, but cannot find
+ why it only occurs with consecutive characters.
 
 **************************************************
 		UNFINISHED PORTIONS
 **************************************************
 
--
+-Finish path resolution
+-i/o redirection
+-pipes
+-background processing
+-built ins
 
 **************************************************
 		     COMMENTS
