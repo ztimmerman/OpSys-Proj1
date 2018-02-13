@@ -11,6 +11,8 @@ Project 1- Shell
 #include <unistd.h>	//gethostname
 #include <sys/types.h>	//fork
 #include <sys/wait.h>	//wait
+#include <dirent.h> 	//for directory entry search
+
 
 /***********************CONSTANTS*********************/
 #define BUFFER 255
@@ -23,9 +25,12 @@ char **my_parse(char *line,char **cmd);
 char *parse_whitespace(char *line);
 char **parse_arguments(char *line,char **cmd);
 char **expand_variables(char **cmd);
+char **expand_cmd(char **cmd);
 void my_execute(char **cmd);
 void my_clean(char *line,char **cmd);
 
+
+int fileExists(const char * directory, const char * ourFile);
 
 /*****************GLOBAL/ENVIRONMENT VAR*************/
 char *MACHINE;
@@ -46,6 +51,7 @@ int main(){
     cmd=my_parse(line,cmd);	
 				//match patterns
     my_execute(cmd);		//execute command
+
     my_clean(line,cmd);			//print results
     
     if(done==1)
@@ -97,8 +103,7 @@ char **my_parse(char *line,char **cmd){
   cmd=parse_arguments(line,cmd);
 
   cmd=expand_variables(cmd);
-//  cmd=resolve_paths(cmd);
-
+  cmd=expand_cmd(cmd);
   return cmd;
 }
 
@@ -222,6 +227,42 @@ char **expand_variables(char **cmd){
   }
   return cmd;
 }
+/**********************EXPAND CMD*********************/
+//Expands commands into the path in the /bin directory
+//Outputs error on false command
+char **expand_cmd(char **cmd){
+  int size=BUFFER;
+
+  for(int i=0;i<size;i++){
+    if(cmd[i]==NULL)		//NULL is from invalid variables
+	continue;
+    else if(cmd[i][0]=='\0'){	//ends on last argument
+      break;
+    }				//commands are found at the start,
+    else{			//after pipes, or after '&'
+      if(i==0||(cmd[i-1]!=NULL&&(cmd[i-1][0]=='|'||
+       cmd[i-1][0]=='&'))){
+
+	if(fileExists("/bin/",cmd[i])>=0){
+	  char comm[size];
+	  strcpy(comm,"/bin/");
+          strcat(comm,cmd[i]);
+	  strcpy(cmd[i],comm);
+	}
+	else{
+	  if(strcmp(cmd[i],"exit")!=0){
+	    printf("%s: command not found\n",cmd[i]);
+	  }
+	  done=1;
+	  return cmd;
+	}
+      }
+    }
+  }
+  return cmd;
+}
+
+
 /*****************EXECUTE FUNCT**************************/
 //
 void my_execute(char **cmd){
@@ -234,7 +275,9 @@ void my_execute(char **cmd){
 	continue;
   }
 */
-  if(strcmp(cmd[index],"exit")==0){
+
+//  if(strcmp(cmd[index],"exit")==0){
+    if(done==1){
     pid_t pid=fork();
 
     if(pid==0){
@@ -243,7 +286,6 @@ void my_execute(char **cmd){
     }
     else{
 	waitpid(pid,&status,0);
-	done=1;
 	return;
     }
   }
@@ -298,3 +340,27 @@ void my_clean(char *line,char **cmd){
 	free(MACHINE);
 
 };
+
+int fileExists(const char * directory, const char * ourFile) {
+ DIR *dir;
+ struct dirent *ent;
+ int counter = 0;
+ if ((dir = opendir (directory)) != NULL) {
+   /* print all the files and directories within directory */
+   while ((ent = readdir (dir)) != NULL) {
+//      printf ("%s\n", ent->d_name);
+    if (strcmp(ent->d_name,ourFile) == 0)	{
+      closedir (dir);
+      return counter;
+    }  else  {
+      counter++;
+    }
+   }
+   closedir (dir);
+   return -2;
+ } else {
+   /* could not open directory */
+//    perror ("");
+   return -1;
+ }
+}
