@@ -25,6 +25,7 @@ Dillon Prendergast
   -exit command
 
 Zachary Timmerman
+  -Path resolution
   -makefie
 
 **************************************************
@@ -62,13 +63,17 @@ $> make clean
 		      BUGS
 **************************************************
 
--
+-Seg fault when two 'special characters' are
+ entered consecutively w/o spaces.
+ Appears to go out of index range when adding a
+ space after second character, but cannot find
+ why it only occurs with consecutive characters.
 
 **************************************************
 		UNFINISHED PORTIONS
 **************************************************
 
--Path resolution
+-Finish path resolution
 -i/o redirection
 -pipes
 -background processing
