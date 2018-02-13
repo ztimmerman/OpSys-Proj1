@@ -28,12 +28,7 @@ void my_clean(char *line,char **cmd);
 
 
 /*****************GLOBAL/ENVIRONMENT VAR*************/
-char *USER,
-     *PWD,
-     *HOME,
-     *SHELL,
-     *MACHINE,
-     *PATH;
+char *MACHINE;
 int done;
 /*********************MAIN FUNCT**********************/
 int main(){
@@ -65,12 +60,6 @@ int main(){
 //Set up environmental variables
 void my_setup(){
 
-  USER=getenv("USER");
-  PWD=getenv("PWD");
-  HOME=getenv("HOME");
-  SHELL=getenv("SHELL");
-  PATH=getenv("PATH");
-
   MACHINE=getenv("MACHINE");
   if(MACHINE==NULL){
 	MACHINE=calloc(BUFFER,sizeof(char));
@@ -83,7 +72,7 @@ void my_setup(){
 //Prints out the standard USER@MACHINE :: PWD prompt
 void my_prompt(){
 				//format found in Proj1.pdf
-  printf("%s@%s :: %s =>",USER,MACHINE,PWD);
+  printf("%s@%s :: %s =>",getenv("USER"),MACHINE,getenv("PWD"));
 }
 
 
@@ -236,9 +225,16 @@ char **expand_variables(char **cmd){
 /*****************EXECUTE FUNCT**************************/
 //
 void my_execute(char **cmd){
+ int index=0;
+ int status;
 
-  if(strcmp(cmd[0],"exit")==0){
-    int status;
+/* while(1){
+  if(cmd[index]==NULL){
+	index++;
+	continue;
+  }
+*/
+  if(strcmp(cmd[index],"exit")==0){
     pid_t pid=fork();
 
     if(pid==0){
@@ -251,9 +247,24 @@ void my_execute(char **cmd){
 	return;
     }
   }
-  //else if(strcmp(cmd[0],"exit")==0){
+/*
+  else if(strcmp(cmd[index],"echo")==0){
+    pid_t pid=fork();
 
-  //}
+    if(pid==0){
+      char *out[]={cmd[index+1],"HI\n"};
+
+printf("HI%s\n",cmd[index+1]);
+      execv("/bin/echo",out);
+      exit(0);
+    }
+    else{
+      waitpid(pid,&status,0);
+      index++;
+    }
+  }
+*/
+//} //end of while
   //Match against patterns
   //Execute based on pattern
   //Print results
