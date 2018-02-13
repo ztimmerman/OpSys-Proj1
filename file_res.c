@@ -94,17 +94,35 @@ char * pathRes(char * newPath, const char * m_PATH){
     }
 }
 
+char * homeProcess(char * oldPath, const char * homePath)  {
+  char * newPath;
+  if (oldPath[0] == '~')  {
+    newPath = calloc(strlen(oldPath) + strlen(homePath),1);
+    strcpy(newPath,homePath);
+    strcat(newPath,oldPath+1);
+    return newPath;
+  } else  {
+    return oldPath;
+  }
+}
+
 int main()
 {
   char * paths = "/home/zacharytimmerman/bin:/home/zacharytimmerman/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin";
-  char * pwd = "/home/zacharytimmerman/opsys/OpSys-Proj1";
+  char * pwd = "~/opsys/OpSys-Proj1";
   char * z_home = "/home/zacharytimmerman";
-  char * newPath = "ls";
+  char * newPath = "javac";
   char * true_path;
 
+/*
   true_path = pathRes(newPath,paths);
   printf("%s\n",true_path);
   free(true_path);
+*/
+  true_path = homeProcess(pwd,z_home);
+  printf("%s\n",true_path);
+  free(true_path);
+
 
   return 0;
 }
