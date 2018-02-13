@@ -20,6 +20,7 @@ char *my_read();
 char **my_parse(char *line,char **cmd);
 char *parse_whitespace(char *line);
 char **parse_arguments(char *line,char **cmd);
+char **expand_variables(char **cmd);
 void my_execute(char **cmd);
 void my_clean(char *line,char **cmd);
 
@@ -46,7 +47,7 @@ int main(){
 				//Transform input
     cmd=my_parse(line,cmd);	
 				//match patterns
-    my_execute(cmd);		//execute command
+//    my_execute(cmd);		//execute command
     my_clean(line,cmd);			//print results
 				//cleanup
   }
@@ -64,13 +65,11 @@ void my_setup(){
   SHELL=getenv("SHELL");
   PATH=getenv("PATH");
 
-  MACHINE=getenv("MACHINE");	
-//works on non-cs server machines
-//  if(MACHINE[0]=='\0'){
-//  if(strcmp(MACHINE,"")==0)
-//	MACHINE=calloc(BUFFER,sizeof(char));
-//	gethostname(MACHINE,BUFFER);
-//  }
+  MACHINE=getenv("MACHINE");
+  if(MACHINE==NULL){
+	MACHINE=calloc(BUFFER,sizeof(char));
+	gethostname(MACHINE,BUFFER);
+  }			//allows proper prompt on Linux machines
 
 }
 
@@ -101,7 +100,8 @@ char **my_parse(char *line,char **cmd){
 
   line=parse_whitespace(line);
   cmd=parse_arguments(line,cmd);
-//  cmd=expand_variables(cmd);
+
+  cmd=expand_variables(cmd);
 //  cmd=resolve_paths(cmd);
 
   return cmd;
@@ -125,7 +125,6 @@ char *parse_whitespace(char *line){
 
     if(line[index]==' ' && (line[index+1]==' '||line[index+1]=='\t')){
       memmove(&line[index],&line[index+1],strlen(line)-index);
-     // strncpy(line,line[index+1],bufsize);
       continue;
     }
     else if(line[index]=='\t'){	//remove multiple whitespace
@@ -148,7 +147,7 @@ char *parse_whitespace(char *line){
     else if(line[index]=='|'||line[index]=='<'||line[index]=='>'
 	||line[index]=='&'||line[index]=='$'||line[index]=='~'){
 
-      if(line[index-1]!=' '){
+      if(line[index-1]!=' '&& index!=0){
 	memmove(&line[index+1],&line[index],strlen(line)-index);
 	line[index]=' ';
 	continue;
@@ -170,9 +169,8 @@ char *parse_whitespace(char *line){
 char **parse_arguments(char *line,char **cmd){
 
    int size=BUFFER;
-   int index=0,end=0;
-				//allocate possibility of 255
-				//chars with one char btwn space
+   int index=0,start=0,end=0;
+
    cmd=calloc(size, sizeof(char *));
    
    for(int i=0;i<size;i++){
@@ -180,28 +178,55 @@ char **parse_arguments(char *line,char **cmd){
    }
 
    while(1){
-				//separate by spaces
-     if(line[index]==' '){
-	index++;
+			
+     if(line[start]==' '){
+	start++;
 	continue;
      }
-     for(int i=index;i<strlen(line)-index;end=++i){
+				//finds start/end of each arg
+     for(int i=start;i<strlen(line);end=++i){
 	if(line[i]==' '){
 	  break;
 	}
      }
+				//copies arg into bucket
+     memcpy(cmd[index],&line[start],(end-start));
+     cmd[index][end-start]='\0';
 
-     memcpy(cmd[index],&line[index],strlen(line)-(end-index));
-     cmd[index][end-index]='\0';
+     start=end;
+     index++;
 
-     index=end;
-
-     if(line[index]=='\0')
+     if(line[index]=='\0'){
 	return cmd;
+     }
    }
 }
 
 
+/***********EXPAND VARIABLES FUNCT**********************/
+//turns envvar into the envvar values
+//**WARNING**
+//IF THE VARIABLE IS INVALID, THE BUCKET IN CMD ARRAY
+//BECOMES A NULL PTR
+char **expand_variables(char **cmd){
+
+  int size=BUFFER;
+
+  for(int i=0;i<BUFFER;i++){	//runs through cmd array
+
+    if(cmd[i]==NULL)		//invalid variable
+	continue;
+
+    if(cmd[i][0]=='\0'){	//stops at first empty string
+      break;
+    }
+    
+    if(cmd[i][0]=='$'){		//variables signaled by leading $
+      cmd[i+1]=getenv(cmd[i+1]);//cuts off leading $ and gets env
+    }
+  }
+  return cmd;
+}
 /*****************EXECUTE FUNCT**************************/
 //
 void my_execute(char **cmd){
@@ -217,15 +242,24 @@ void my_clean(char *line,char **cmd){
 
    int size=BUFFER;
 
-   free(line);
+   free(line);			//frees user input
 
    for(int i=0;i<size;i++){
+				//frees cmd array buckets
+     if(cmd[i]!=NULL && cmd[i][0]=='$'){
+			
+	free(cmd[i]);		
+        if(cmd[i+1]!=NULL && cmd[i+1][0]!='\0'){
+	  i++;		//indexes after a '$' are expanded
+	}		//variable. These are found by
+	continue;	//getenv, which does not need free
+     }			//Invalid ouputs (NULL) must be freed
      free(cmd[i]);
    }
    free(cmd);
 
 
-//  if(strcmp(getenv("MACHINE"),"")==0)	//for non cs-machines
-//	free(MACHINE);
+  if(getenv("MACHINE")==NULL)	//for non cs-machines
+	free(MACHINE);
 
 };
