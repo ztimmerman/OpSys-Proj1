@@ -122,13 +122,69 @@ char * relativeProcess(char * curr_pwd, char * obj)  {
   }
 }
 
+char * parentProcess(char * obj) {
+  size_t obj_len = strlen(obj);
+  size_t pwd_len = strlen(obj);
+  char * obj_cpy = obj; //just to be able to push the pointer to the right without
+                        //affecting obj
+
+  char * nextParent;
+  char bufferN[1024];
+  char bufferO[1024];
+
+  nextParent = strstr(obj,"../");
+  if (nextParent == 0)  {
+//    printf("No parents. :-[\n");
+  } else  {
+//    printf("Has parent. :-]\n");
+  }
+  strcpy(bufferO,obj_cpy);
+  while (strstr(bufferO,"../") != NULL)  {
+      strcpy(bufferN,strstr(bufferO,"../"));
+//      printf("%s\n%s\n\n",bufferN,bufferO);
+      bufferO[strlen(bufferO)-strlen(bufferN)-1] = '\0';
+      for (int i = strlen(bufferO) - 2; i >= 0; i--)  {
+        if (bufferO[i] == '/')  {
+          break;
+        } else  {
+          bufferO[i] = '\0';
+        }
+      }
+      strcat(bufferO,bufferN+3);
+  }
+  //printf("%s\n",bufferO);
+  char * newObj = calloc(strlen(bufferO)+1,1);
+  strcpy(newObj,bufferO);
+  return newObj;
+}
+
+char * removeDotSlash(char * obj) {
+  char bufferL[1024];
+  char bufferR[1024];
+  char * nextDotSlash;
+  strcpy(bufferL,obj);
+  while (strstr(bufferL,"./") != 0)  {
+    nextDotSlash = strstr(bufferL,"./");
+    bufferL[strlen(bufferL)-strlen(nextDotSlash)] = '\0';
+    strcpy(bufferR,nextDotSlash+2);
+//    printf("%s\n%s\n\n",bufferL,bufferR);
+    strcat(bufferL,bufferR);
+  }
+//  printf("\n%s\n",bufferL);
+  char * newObj = calloc(strlen(bufferL) +1,1);
+  strcpy(newObj,bufferL);
+  return newObj;
+}
+
 int main()
 {
   char * paths = "/home/zacharytimmerman/bin:/home/zacharytimmerman/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin";
-  char * pwd = "/home/zacharytimmerman/opsys/OpSys-Proj1";
+  char * pwd = "/home/zacharytimmerman/././opsys/./OpSys-Proj1";
   char * z_home = "/home/zacharytimmerman";
   char * newPath = ".git";
   char * true_path;
+
+  char * parentPath = "/home/zacharytimmerman/opsys/OpSys-Proj1/";
 
 /*
   true_path = pathRes(newPath,paths);
@@ -141,6 +197,7 @@ int main()
   printf("%s\n",true_path);
   free(true_path);
 */
+/*
   true_path = relativeProcess(pwd,newPath);
   if (true_path != 0) {
     printf("%s\n",true_path);
@@ -148,6 +205,15 @@ int main()
   } else  {
     printf("File not found.\n");
   }
+*/
+  /*
+  true_path = parentProcess(parentPath);
+  printf("%s\n",true_path);
+  free(true_path);
+  */
 
+  true_path = removeDotSlash(pwd);
+  printf("%s\n",true_path);
+  free(true_path);
   return 0;
 }
