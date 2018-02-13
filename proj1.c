@@ -153,7 +153,7 @@ char *parse_whitespace(char *line){
     else if(line[index]=='|'||line[index]=='<'||line[index]=='>'
 	||line[index]=='&'||line[index]=='$'||line[index]=='~'){
 
-      if(line[index-1]!=' '&& index!=0){
+      if(index!=0 && line[index-1]!=' '){
 	memmove(&line[index+1],&line[index],strlen(line)-index);
 	line[index]=' ';
 	continue;
