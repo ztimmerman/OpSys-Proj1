@@ -23,9 +23,11 @@ Dillon Prendergast
   -input-parsing
   -expansion of evironment variables
   -exit command
+  -echo command
 
 Zachary Timmerman
   -Path resolution
+  -piping
   -makefie
 
 **************************************************
@@ -73,14 +75,15 @@ $> make clean
 		UNFINISHED PORTIONS
 **************************************************
 
--Finish path resolution
+-implement path resolution
 -i/o redirection
--pipes
+-implement pipes
 -background processing
--built ins
+-finish built ins
 
 **************************************************
 		     COMMENTS
 **************************************************
 
--
+-'$' character is output preceding a variable
+ with the echo command
