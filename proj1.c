@@ -28,7 +28,11 @@ char **expand_variables(char **cmd);
 char **expand_cmd(char **cmd);
 void my_execute(char **cmd);
 void my_clean(char *line,char **cmd);
-
+void redirExec(char **cmd, char * direction, char * redirPath);
+char * homeProcess(char * oldPath, const char * homePath);
+char * parentProcess(char * obj);
+char * relativeProcess(char * curr_pwd, char * obj);
+char * removeDotSlash(char * obj);
 
 int fileExists(const char * directory, const char * ourFile);
 
@@ -46,14 +50,67 @@ int main(){
     my_setup();			//setup
     my_prompt();		//print propmt
     line=my_read();		//read input
-				
+
 				//Transform input
-    cmd=my_parse(line,cmd);	
+    cmd=my_parse(line,cmd);
 				//match patterns
+      //resolve for home processing
+      char * tempStrPtr;
+      for (int i = 1; strcmp(cmd[i],"\0") != 0; i++)  {
+        if (cmd[i][0] == '~') {
+          tempStrPtr = homeProcess(cmd[i],getenv("HOME"));
+          if (tempStrPtr != NULL) {
+            free(cmd[i]);
+            cmd[i] = tempStrPtr;
+          }
+        }
+      }
+      //resolve for relative processing
+      char tempChar;
+      for (int i = 1; strcmp(cmd[i],"\0") != 0; i++)  {
+        tempChar = cmd[i][0];
+        if (tempChar != '|' && tempChar != '<' && tempChar != '>' &&
+              tempChar != '-')  {
+          tempStrPtr = relativeProcess(getenv("PWD"),cmd[i]);
+          if (tempStrPtr != NULL) {
+            free(cmd[i]);
+            cmd[i] = tempStrPtr;
+          }
+        }
+      }
+
+      //resolve for parent processing
+      for (int i = 1; strcmp(cmd[i],"\0") != 0; i++) {
+        if (strstr(cmd[i],"../") != NULL) {
+          tempStrPtr = parentProcess(cmd[i]);
+          if (tempStrPtr != NULL) {
+            free(cmd[i]);
+            cmd[i] = tempStrPtr;
+          }
+        }
+      }
+
+      //remove those annoying dot-slashes http://www.slash-dot.com/
+      for (int i = 1; strcmp(cmd[i],"\0") != 0; i++) {
+        if (strstr(cmd[i],"./") != NULL)  {
+          tempStrPtr = removeDotSlash(cmd[i]);
+          if (tempStrPtr != NULL) {
+            free(cmd[i]);
+            cmd[i] = tempStrPtr;
+          }
+        }
+      }
+    //test for redirect
+    for (int i = 1; strcmp(cmd[i],"\0") != 0; i++)  {
+      if (strcmp(cmd[i],">") == 0 || strcmp(cmd[i],"<") == 0) {
+          //file redirection execution launched here
+      }
+    }
+
     my_execute(cmd);		//execute command
 
     my_clean(line,cmd);			//print results
-    
+
     if(done==1)
 	break;
 				//cleanup
@@ -89,7 +146,7 @@ char *my_read(){
   int bufsize=BUFFER;
   char *input=calloc(bufsize,sizeof(char));
 
-  fgets(input,bufsize,stdin);		//'\0' added in parse_white	
+  fgets(input,bufsize,stdin);		//'\0' added in parse_white
   return input;				//must free later
 }
 
@@ -158,7 +215,7 @@ char *parse_whitespace(char *line){
        continue;
       }
     }
-			
+
     index++;
   }
 }
@@ -172,13 +229,13 @@ char **parse_arguments(char *line,char **cmd){
    int index=0,start=0,end=0;
 
    cmd=calloc(size, sizeof(char *));
-   
+
    for(int i=0;i<size;i++){
 	cmd[i]=calloc(size,sizeof(char));
    }
 
    while(1){
-			
+
      if(line[start]==' '){
 	start++;
 	continue;
@@ -220,7 +277,7 @@ char **expand_variables(char **cmd){
     if(cmd[i][0]=='\0'){	//stops at first empty string
       break;
     }
-    
+
     if(cmd[i][0]=='$'){		//variables signaled by leading $
       cmd[i+1]=getenv(cmd[i+1]);//cuts off leading $ and gets env
     }
@@ -324,8 +381,8 @@ void my_clean(char *line,char **cmd){
    for(int i=0;i<size;i++){
 				//frees cmd array buckets
      if(cmd[i]!=NULL && cmd[i][0]=='$'){
-			
-	free(cmd[i]);		
+
+	free(cmd[i]);
         if(cmd[i+1]!=NULL && cmd[i+1][0]!='\0'){
 	  i++;		//indexes after a '$' are expanded
 	}		//variable. These are found by
@@ -363,4 +420,84 @@ int fileExists(const char * directory, const char * ourFile) {
 //    perror ("");
    return -1;
  }
+}
+
+char * homeProcess(char * oldPath, const char * homePath)  {
+  char * newPath;
+  if (oldPath[0] == '~')  {
+    newPath = calloc(strlen(oldPath) + strlen(homePath),1);
+    strcpy(newPath,homePath);
+    strcat(newPath,oldPath+1);
+    return newPath;
+  } else  {
+    return oldPath;
+  }
+}
+
+char * relativeProcess(char * curr_pwd, char * obj)  {
+  char * newObj;
+  int isValid = fileExists(curr_pwd,obj);
+  if (isValid >= 0) {
+    newObj = calloc(strlen(curr_pwd) + strlen(obj) + 2,1);
+    strcpy(newObj,curr_pwd);
+    strcat(newObj,"/");
+    strcat(newObj,obj);
+    return newObj;
+  } else  {
+      return 0;
+  }
+}
+
+char * parentProcess(char * obj) {
+  size_t obj_len = strlen(obj);
+  size_t pwd_len = strlen(obj);
+  char * obj_cpy = obj; //just to be able to push the pointer to the right without
+                        //affecting obj
+
+  char * nextParent;
+  char bufferN[1024];
+  char bufferO[1024];
+
+  nextParent = strstr(obj,"../");
+  if (nextParent == 0)  {
+//    printf("No parents. :-[\n");
+  } else  {
+//    printf("Has parent. :-]\n");
+  }
+  strcpy(bufferO,obj_cpy);
+  while (strstr(bufferO,"../") != NULL)  {
+      strcpy(bufferN,strstr(bufferO,"../"));
+//      printf("%s\n%s\n\n",bufferN,bufferO);
+      bufferO[strlen(bufferO)-strlen(bufferN)-1] = '\0';
+      for (int i = strlen(bufferO) - 2; i >= 0; i--)  {
+        if (bufferO[i] == '/')  {
+          break;
+        } else  {
+          bufferO[i] = '\0';
+        }
+      }
+      strcat(bufferO,bufferN+3);
+  }
+  //printf("%s\n",bufferO);
+  char * newObj = calloc(strlen(bufferO)+1,1);
+  strcpy(newObj,bufferO);
+  return newObj;
+}
+
+char * removeDotSlash(char * obj) {
+  char bufferL[1024];
+  char bufferR[1024];
+  char * nextDotSlash;
+  strcpy(bufferL,obj);
+  while (strstr(bufferL,"./") != 0)  {
+    nextDotSlash = strstr(bufferL,"./");
+    bufferL[strlen(bufferL)-strlen(nextDotSlash)] = '\0';
+    strcpy(bufferR,nextDotSlash+2);
+//    printf("%s\n%s\n\n",bufferL,bufferR);
+    strcat(bufferL,bufferR);
+  }
+//  printf("\n%s\n",bufferL);
+  char * newObj = calloc(strlen(bufferL) +1,1);
+  strcpy(newObj,bufferL);
+  return newObj;
 }
