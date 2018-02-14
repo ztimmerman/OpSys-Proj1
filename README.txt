@@ -38,7 +38,7 @@ project1_prendergast_timmerman.tar contents:
 
 README.md
 makefile
-proj1.c //implementation and functions
+proj1.c //main program with implemented functions
 
 **************************************************
 		   COMPILATION
