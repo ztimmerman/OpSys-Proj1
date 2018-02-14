@@ -197,7 +197,7 @@ int main()
   printf("%s\n",true_path);
   free(true_path);
 */
-/*
+
   true_path = relativeProcess(pwd,newPath);
   if (true_path != 0) {
     printf("%s\n",true_path);
@@ -205,12 +205,12 @@ int main()
   } else  {
     printf("File not found.\n");
   }
-*/
-  /*
+
+  
   true_path = parentProcess(parentPath);
   printf("%s\n",true_path);
   free(true_path);
-  */
+  
 
   true_path = removeDotSlash(pwd);
   printf("%s\n",true_path);
