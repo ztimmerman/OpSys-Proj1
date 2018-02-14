@@ -5,4 +5,4 @@ dzshell: proj1.c
 	gcc -o dzshell proj1.c
 
 clean:
-	rm dzshell
+	rm dzshell file_res.x
