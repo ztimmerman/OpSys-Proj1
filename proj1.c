@@ -35,6 +35,7 @@ int fileExists(const char * directory, const char * ourFile);
 /*****************GLOBAL/ENVIRONMENT VAR*************/
 char *MACHINE;
 int done;
+int badcmd;
 /*********************MAIN FUNCT**********************/
 int main(){
 
@@ -50,11 +51,12 @@ int main(){
 				//Transform input
     cmd=my_parse(line,cmd);	
 				//match patterns
-    my_execute(cmd);		//execute command
+    if(badcmd!=1)
+      my_execute(cmd);		//execute command
 
     my_clean(line,cmd);			//print results
     
-    if(done==1)
+    if(done==1||badcmd==1)
 	break;
 				//cleanup
   }
@@ -250,8 +252,9 @@ char **expand_cmd(char **cmd){
 	  strcpy(cmd[i],comm);
 	}
 	else{
-	  if(strcmp(cmd[i],"exit")!=0){
+	  if(strcmp(cmd[i],"exit")!=0){	
 	    printf("%s: command not found\n",cmd[i]);
+	    badcmd=1;
 	  }
 	  done=1;
 	  return cmd;
@@ -266,18 +269,11 @@ char **expand_cmd(char **cmd){
 /*****************EXECUTE FUNCT**************************/
 //
 void my_execute(char **cmd){
+ int size=BUFFER;
  int index=0;
  int status;
 
-/* while(1){
-  if(cmd[index]==NULL){
-	index++;
-	continue;
-  }
-*/
-
-//  if(strcmp(cmd[index],"exit")==0){
-    if(done==1){
+  if(done==1){
     pid_t pid=fork();
 
     if(pid==0){
@@ -289,23 +285,29 @@ void my_execute(char **cmd){
 	return;
     }
   }
-/*
-  else if(strcmp(cmd[index],"echo")==0){
-    pid_t pid=fork();
-
-    if(pid==0){
-      char *out[]={cmd[index+1],"HI\n"};
-
-printf("HI%s\n",cmd[index+1]);
-      execv("/bin/echo",out);
-      exit(0);
-    }
-    else{
-      waitpid(pid,&status,0);
-      index++;
+  
+  for (int i=0;i<size;i++){
+    if(strcmp(cmd[i],"/bin/echo")==0){
+	pid_t pid=fork();
+	if(pid==0){
+	  for(int j=i;j<size;j++){
+		if(cmd[j]==NULL){
+		 printf("Invalid variable\n");
+		 exit(0);
+		}				//concatenates NULL
+		else if(cmd[j][0]=='\0'){
+		 cmd[j]=NULL;			//on end of execv argument
+		}
+	  }
+	  execv(cmd[i],&cmd[i]);
+	  exit(0);
+	}
+	else{
+	  waitpid(pid,&status,0);
+	  break;
+	}
     }
   }
-*/
 //} //end of while
   //Match against patterns
   //Execute based on pattern
